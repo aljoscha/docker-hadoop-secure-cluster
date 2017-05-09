@@ -28,5 +28,68 @@
     <name>yarn.nodemanager.delete.debug-delay-sec</name>
     <value>600</value>
   </property>
-
+  <property>
+     <name>yarn.resourcemanager.principal</name>
+     <value>yarn/HOSTNAME@EXAMPLE.COM</value>
+  </property>
+   
+  <property>
+       <name>yarn.resourcemanager.keytab</name>
+       <value>/etc/security/keytabs/yarn.keytab</value>
+  </property>
+   
+  <property>
+       <name>yarn.nodemanager.principal</name>
+       <value>yarn/HOSTNAME@EXAMPLE.COM</value>
+  </property>
+   
+  <property>
+       <name>yarn.nodemanager.keytab</name>
+       <value>/etc/security/keytabs/yarn.keytab</value>
+  </property>
+   
+  <property>
+       <name>yarn.nodemanager.container-executor.class</name>
+       <value>org.apache.hadoop.yarn.server.nodemanager.LinuxContainerExecutor</value>
+  </property>
+   
+  <property>
+       <name>yarn.nodemanager.linux-container-executor.path</name>
+       <value>hadoop-3.0.0-SNAPSHOT/bin/container-executor</value>
+  </property>
+   
+  <property>
+       <name>yarn.nodemanager.linux-container-executor.group</name>
+       <value>hadoop</value>
+  </property>
+   
+  <property>
+       <name>yarn.timeline-service.principal</name>
+       <value>yarn/HOSTNAME@EXAMPLE.COM</value>
+  </property>
+   
+  <property>
+       <name>yarn.timeline-service.keytab</name>
+       <value>/etc/security/keytabs/yarn.keytab</value>
+  </property>
+   
+  <property>
+       <name>yarn.resourcemanager.webapp.delegation-token-auth-filter.enabled</name>
+       <value>true</value>
+  </property>
+   
+  <property>
+       <name>yarn.timeline-service.http-authentication.type</name>
+       <value>kerberos</value>
+  </property>
+   
+  <property>
+       <name>yarn.timeline-service.http-authentication.kerberos.principal</name>
+       <value>HTTP/HOSTNAME@EXAMPLE.COM</value>
+  </property>
+   
+  <property>
+       <name>yarn.timeline-service.http-authentication.kerberos.keytab</name>
+       <value>/etc/security/keytabs/yarn.keytab</value>
+  </property>
 </configuration>
