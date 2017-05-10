@@ -1,0 +1,43 @@
+version: '2'
+
+networks:
+  custom:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.21.0.0/16
+        gateway: 172.21.0.1
+
+services:
+  kdc:
+    networks:
+      custom:
+        ipv4_address: 172.21.0.2
+    image: sequenceiq/kerberos
+    hostname: kdc.kerberos.com
+    environment:
+      REALM: ANDY.COM
+      DOMAIN_REALM: kdc.kerberos.com
+    volumes:
+      - "./krb5.conf:/etc/krb5.conf"
+      - "/dev/urandom:/dev/random"
+      - "/etc/localtime:/etc/localtime:ro"
+
+  hadoop:
+    networks:
+      custom:
+        ipv4_address: 172.21.0.3
+    image: knappek/hadoop-secure
+    depends_on: 
+      - kdc
+    hostname: hadoop
+    tty: true
+    extra_hosts:
+      - "kdc.kerberos.com:172.21.0.2"
+    environment:
+      KRB_REALM: ANDY.COM
+      DOMAIN_REALM: kdc.kerberos.com
+    volumes:
+      - "./krb5.conf:/etc/krb5.conf"
+      - "/etc/localtime:/etc/localtime:ro"
