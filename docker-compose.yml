@@ -38,6 +38,7 @@ services:
     environment:
       KRB_REALM: ANDY.COM
       DOMAIN_REALM: kdc.kerberos.com
+      FQDN: hadoop
     volumes:
       - "./krb5.conf:/etc/krb5.conf"
       - "/etc/localtime:/etc/localtime:ro"

@@ -14,23 +14,24 @@ sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" /etc/krb5.conf
 sed -i "s/example.com/${DOMAIN_REALM}/g" /etc/krb5.conf
 
 # altering the core-site configuration
-sed -i "s/HOSTNAME/${HOSTNAME}/g" /usr/local/hadoop/etc/hadoop/core-site.xml
-sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" /usr/local/hadoop/etc/hadoop/core-site.xml
-sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" /usr/local/hadoop/etc/hadoop/core-site.xml
+sed -i "s/HOSTNAME/${FQDN}/g" $HADOOP_PREFIX/etc/hadoop/core-site.xml
+sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" $HADOOP_PREFIX/etc/hadoop/core-site.xml
+sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" $HADOOP_PREFIX/etc/hadoop/core-site.xml
 
-sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" /usr/local/hadoop/etc/hadoop/hdfs-site.xml
-sed -i "s/HOSTNAME/${HOSTNAME}/g" /usr/local/hadoop/etc/hadoop/hdfs-site.xml
-sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" /usr/local/hadoop/etc/hadoop/hdfs-site.xml
+sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
+sed -i "s/HOSTNAME/${FQDN}/g" $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
+sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
 
-sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" /usr/local/hadoop/etc/hadoop/yarn-site.xml
-sed -i "s/HOSTNAME/${HOSTNAME}/g" /usr/local/hadoop/etc/hadoop/yarn-site.xml
-sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" /usr/local/hadoop/etc/hadoop/yarn-site.xml
+sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
+sed -i "s/HOSTNAME/${FQDN}/g" $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
+sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
 
-sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" /usr/local/hadoop/etc/hadoop/mapred-site.xml
-sed -i "s/HOSTNAME/${HOSTNAME}/g" /usr/local/hadoop/etc/hadoop/mapred-site.xml
-sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" /usr/local/hadoop/etc/hadoop/mapred-site.xml
+sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
+sed -i "s/HOSTNAME/${FQDN}/g" $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
+sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
 
 # create namenode kerberos principal and keytab
+touch /var/log/kerberos/kadmind.log
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -randkey nn/$(hostname -f)@${KRB_REALM}"
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -randkey dn/$(hostname -f)@${KRB_REALM}"
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -randkey HTTP/$(hostname -f)@${KRB_REALM}"
@@ -64,12 +65,15 @@ chmod 400 ${KEYTAB_DIR}/rm.service.keytab
 chmod 400 ${KEYTAB_DIR}/nm.service.keytab
 
 
-RUN $HADOOP_PREFIX/bin/hdfs namenode -format
-RUN service sshd start && $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh && $HADOOP_PREFIX/sbin/start-dfs.sh && $HADOOP_PREFIX/bin/hdfs dfs -mkdir -p /user/root
-RUN service sshd start && $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh && $HADOOP_PREFIX/sbin/start-dfs.sh && $HADOOP_PREFIX/bin/hdfs dfs -put $HADOOP_PREFIX/etc/hadoop/ input
-
+$HADOOP_PREFIX/bin/hdfs namenode -format
 service sshd start
+$HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 $HADOOP_PREFIX/sbin/start-dfs.sh
+$HADOOP_PREFIX/bin/hdfs dfs -mkdir -p /user/root
+$HADOOP_PREFIX/bin/hdfs dfs -put $HADOOP_PREFIX/etc/hadoop/ input
+
+#service sshd start
+#$HADOOP_PREFIX/sbin/start-dfs.sh
 $HADOOP_PREFIX/sbin/start-yarn.sh
 $HADOOP_PREFIX/sbin/mr-jobhistory-daemon.sh start historyserver
 
