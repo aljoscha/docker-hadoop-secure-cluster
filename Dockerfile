@@ -10,9 +10,12 @@ USER root
 # install dev tools
 RUN yum clean all; \
     rpm --rebuilddb; \
-    yum install -y curl which tar sudo openssh-server openssh-clients rsync
+    yum install -y curl which tar sudo openssh-server openssh-clients rsync \ 
+    vim jsvc
 # update libselinux. see https://github.com/sequenceiq/hadoop-docker/issues/14
 RUN yum update -y libselinux
+
+RUN echo 'alias ll="ls -alF"' >> /root/.bashrc
 
 # passwordless ssh
 RUN ssh-keygen -q -N "" -t dsa -f /etc/ssh/ssh_host_dsa_key
@@ -32,13 +35,17 @@ RUN rm /usr/bin/java && ln -s $JAVA_HOME/bin/java /usr/bin/java
 
 # download native support
 RUN mkdir -p /tmp/native
-RUN curl -L https://github.com/sequenceiq/docker-hadoop-build/releases/download/v2.7.1/hadoop-native-64-2.7.1.tgz | tar -xz -C /tmp/native
+COPY hadoop-native-64-2.7.1.tgz /tmp/native/hadoop-native-64-2.7.1.tgz
+RUN tar -xzvf /tmp/native/hadoop-native-64-2.7.1.tgz -C /tmp/native
+#RUN curl -L https://github.com/sequenceiq/docker-hadoop-build/releases/download/v2.7.1/hadoop-native-64-2.7.1.tgz | tar -xz -C /tmp/native
 
 # Kerberos client
 RUN yum install krb5-libs krb5-workstation krb5-auth-dialog -y
 
 # hadoop
-RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz | tar -xz -C /usr/local/
+COPY hadoop-2.7.1.tar.gz /usr/local/hadoop-2.7.1.tar.gz
+RUN tar -xzvf /usr/local/hadoop-2.7.1.tar.gz -C /usr/local
+#RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz | tar -xz -C /usr/local/
 RUN cd /usr/local && ln -s ./hadoop-2.7.1 hadoop
 
 ENV HADOOP_PREFIX /usr/local/hadoop
@@ -57,8 +64,10 @@ ENV FQDN hadoop.com
 
 RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME=/usr/java/default\nexport HADOOP_PREFIX=/usr/local/hadoop\nexport HADOOP_HOME=/usr/local/hadoop\n:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-RUN sed -i '/^export JSVC_HOME/ s:.*:export JSVC_HOME=${JSVC_HOME}:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-#RUN . $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+RUN sed -i '/.*export JSVC_HOME/ s:.*:export JSVC_HOME=/usr/bin:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+RUN sed -i '/.*export HADOOP_SECURE_DN_USER/ s:.*:export HADOOP_SECURE_DN_USER=root:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh 
+RUN sed -i '/.*export HADOOP_SECURE_DN_PID_DIR/ s:.*:export HADOOP_SECURE_DN_PID_DIR=/tmp:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh 
+RUN sed -i '/.*export HADOOP_SECURE_DN_LOG_DIR/ s:.*:export HADOOP_SECURE_DN_LOG_DIR=$HADOOP_PREFIX/logs:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh 
 
 RUN mkdir $HADOOP_PREFIX/input
 RUN cp $HADOOP_PREFIX/etc/hadoop/*.xml $HADOOP_PREFIX/input
