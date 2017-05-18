@@ -11,7 +11,7 @@ USER root
 RUN yum clean all; \
     rpm --rebuilddb; \
     yum install -y curl which tar sudo openssh-server openssh-clients rsync \ 
-    vim jsvc
+    vim jsvc rsyslog
 # update libselinux. see https://github.com/sequenceiq/hadoop-docker/issues/14
 RUN yum update -y libselinux
 
@@ -25,13 +25,17 @@ RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 
 
 # java
-RUN curl -LO 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
+#RUN curl -LO 'http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jdk-7u71-linux-x64.rpm' -H 'Cookie: oraclelicense=accept-securebackup-cookie'
+COPY jdk-7u71-linux-x64.rpm /
 RUN rpm -i jdk-7u71-linux-x64.rpm
 RUN rm jdk-7u71-linux-x64.rpm
-
 ENV JAVA_HOME /usr/java/default
 ENV PATH $PATH:$JAVA_HOME/bin
 RUN rm /usr/bin/java && ln -s $JAVA_HOME/bin/java /usr/bin/java
+# re-install JCE Policy
+COPY UnlimitedJCEPolicyJDK7.zip /
+RUN unzip UnlimitedJCEPolicyJDK7.zip
+RUN cp /UnlimitedJCEPolicy/local_policy.jar /UnlimitedJCEPolicy/US_export_policy.jar $JAVA_HOME/jre/lib/security
 
 # download native support
 RUN mkdir -p /tmp/native

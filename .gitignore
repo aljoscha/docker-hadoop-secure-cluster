@@ -1,1 +1,5 @@
 .project
+*.gz
+*.tgz
+*.zip
+*.rpm
