@@ -3,7 +3,7 @@
 # docker build -t sequenceiq/hadoop .
 
 FROM sequenceiq/pam:centos-6.5
-MAINTAINER SequenceIQ
+MAINTAINER Knappek
 
 USER root
 
@@ -11,7 +11,7 @@ USER root
 RUN yum clean all; \
     rpm --rebuilddb; \
     yum install -y curl which tar sudo openssh-server openssh-clients rsync \ 
-    vim jsvc rsyslog
+    vim jsvc rsyslog unzip
 # update libselinux. see https://github.com/sequenceiq/hadoop-docker/issues/14
 RUN yum update -y libselinux
 

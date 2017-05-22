@@ -174,4 +174,16 @@
          <name>dfs.data.transfer.protection</name>
          <value>authentication</value>
      </property>
+     <property>
+         <name>dfs.datanode.data.dir.perm</name>
+         <value>700</value> 
+     </property>
+     <property>
+         <name>dfs.datanode.address</name>
+         <value>0.0.0.0:1004</value>
+     </property>
+     <property>
+         <name>dfs.datanode.http.address</name>
+         <value>0.0.0.0:1006</value>
+     </property>
 </configuration>
