@@ -3,7 +3,7 @@
 : ${HADOOP_PREFIX:=/usr/local/hadoop}
 
 #$HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo "export HADOOP_OPTS=\"$HADOOP_OPTS -Djavax.net.debug=ssl -Dsun.security.krb5.debug=true\"" >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+#echo "export HADOOP_OPTS=\"$HADOOP_OPTS -Djavax.net.debug=ssl -Dsun.security.krb5.debug=true\"" >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 
 rm /tmp/*.pid
 
@@ -66,6 +66,8 @@ chmod 400 ${KEYTAB_DIR}/yarn.service.keytab
 chmod 400 ${KEYTAB_DIR}/rm.service.keytab
 chmod 400 ${KEYTAB_DIR}/nm.service.keytab
 
+# create Java Keystore
+#keytool -genkey -keyalg RSA -alias c6401 -keystore $HADOOP_PREFIX/lib/keystore.jks -storepass bigdata -validity 360 -keysize 2048 -keypass bigdata -dname CN=$(hostname -f)
 
 $HADOOP_PREFIX/bin/hdfs namenode -format
 service sshd start

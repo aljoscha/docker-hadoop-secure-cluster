@@ -52,6 +52,7 @@ RUN tar -xzvf /usr/local/hadoop-2.7.1.tar.gz -C /usr/local
 #RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz | tar -xz -C /usr/local/
 RUN cd /usr/local && ln -s ./hadoop-2.7.1 hadoop
 
+ENV PATH $PATH:/usr/local/hadoop/bin
 ENV HADOOP_PREFIX /usr/local/hadoop
 ENV HADOOP_COMMON_HOME /usr/local/hadoop
 ENV HADOOP_HDFS_HOME /usr/local/hadoop
@@ -68,8 +69,7 @@ ENV FQDN hadoop.com
 
 RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME=/usr/java/default\nexport HADOOP_PREFIX=/usr/local/hadoop\nexport HADOOP_HOME=/usr/local/hadoop\n:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-RUN sed -i '/.*export JSVC_HOME/ s:.*:export JSVC_HOME=/usr/bin:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-RUN sed -i '/.*export HADOOP_SECURE_DN_USER/ s:.*:export HADOOP_SECURE_DN_USER=root:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh 
+RUN sed -i '/.*export HADOOP_SECURE_DN_USER/ s:.*:export HADOOP_SECURE_DN_USER=:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh 
 RUN sed -i '/.*export HADOOP_SECURE_DN_PID_DIR/ s:.*:export HADOOP_SECURE_DN_PID_DIR=/tmp:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh 
 RUN sed -i '/.*export HADOOP_SECURE_DN_LOG_DIR/ s:.*:export HADOOP_SECURE_DN_LOG_DIR=$HADOOP_PREFIX/logs:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh 
 
@@ -81,7 +81,9 @@ ADD core-site.xml $HADOOP_PREFIX/etc/hadoop/core-site.xml
 ADD hdfs-site.xml $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
 ADD mapred-site.xml $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
 ADD yarn-site.xml $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
-#RUN $HADOOP_PREFIX/bin/hdfs namenode -format
+ADD ssl-server.xml $HADOOP_PREFIX/etc/hadoop/ssl-server.xml
+ADD ssl-client.xml $HADOOP_PREFIX/etc/hadoop/ssl-client.xml
+ADD keystore.jks $HADOOP_PREFIX/lib/keystore.jks
 
 # fixing the libhadoop.so like a boss
 RUN rm -rf /usr/local/hadoop/lib/native
@@ -91,13 +93,6 @@ ADD ssh_config /root/.ssh/config
 RUN chmod 600 /root/.ssh/config
 RUN chown root:root /root/.ssh/config
 
-# # installing supervisord
-# RUN yum install -y python-setuptools
-# RUN easy_install pip
-# RUN curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -o - | python
-# RUN pip install supervisor
-#
-# ADD supervisord.conf /etc/supervisord.conf
 
 ADD bootstrap.sh /etc/bootstrap.sh
 RUN chown root:root /etc/bootstrap.sh
@@ -114,9 +109,6 @@ RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
 RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
 RUN echo "UsePAM no" >> /etc/ssh/sshd_config
 RUN echo "Port 2122" >> /etc/ssh/sshd_config
-
-#RUN service sshd start && $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh && $HADOOP_PREFIX/sbin/start-dfs.sh && $HADOOP_PREFIX/bin/hdfs dfs -mkdir -p /user/root
-#RUN service sshd start && $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh && $HADOOP_PREFIX/sbin/start-dfs.sh && $HADOOP_PREFIX/bin/hdfs dfs -put $HADOOP_PREFIX/etc/hadoop/ input
 
 CMD ["/etc/bootstrap.sh", "-d"]
 
