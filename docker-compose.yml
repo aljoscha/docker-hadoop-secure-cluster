@@ -20,7 +20,7 @@ services:
       REALM: ANDY.COM
       DOMAIN_REALM: kdc.kerberos.com
     volumes:
-      - "./krb5.conf:/etc/krb5.conf"
+      - "./config_files/krb5.conf:/etc/krb5.conf"
       - "/dev/urandom:/dev/random"
       - "/etc/localtime:/etc/localtime:ro"
 
@@ -28,7 +28,7 @@ services:
     networks:
       custom:
         ipv4_address: 172.21.0.3
-    image: knappek/hadoop-secure
+    image: knappek/hadoop-secure-centos7
     depends_on: 
       - kdc
     hostname: hadoop
@@ -41,5 +41,5 @@ services:
       DOMAIN_REALM: kdc.kerberos.com
       FQDN: hadoop.docker.com
     volumes:
-      - "./krb5.conf:/etc/krb5.conf"
+      - "./config_files/krb5.conf:/etc/krb5.conf"
       - "/etc/localtime:/etc/localtime:ro"

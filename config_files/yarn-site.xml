@@ -55,7 +55,7 @@
    
   <property>
        <name>yarn.nodemanager.linux-container-executor.path</name>
-       <value>hadoop-3.0.0-SNAPSHOT/bin/container-executor</value>
+       <value>/usr/local/hadoop/bin/container-executor</value>
   </property>
    
   <property>

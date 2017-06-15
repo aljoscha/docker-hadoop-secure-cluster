@@ -2,10 +2,9 @@
 
 : ${HADOOP_PREFIX:=/usr/local/hadoop}
 
+# HDFS client Debug mode on
 #$HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 #echo "export HADOOP_OPTS=\"$HADOOP_OPTS -Djavax.net.debug=ssl -Dsun.security.krb5.debug=true\"" >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-
-rm /tmp/*.pid
 
 # installing libraries if any - (resource urls added comma separated to the ACP system variable)
 cd $HADOOP_PREFIX/share/hadoop/common ; for cp in ${ACP//,/ }; do  echo == $cp; curl -LO $cp ; done; cd -
@@ -14,7 +13,7 @@ cd $HADOOP_PREFIX/share/hadoop/common ; for cp in ${ACP//,/ }; do  echo == $cp; 
 sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" /etc/krb5.conf
 sed -i "s/example.com/${DOMAIN_REALM}/g" /etc/krb5.conf
 
-# altering the core-site configuration
+# update config files
 sed -i "s/HOSTNAME/${FQDN}/g" $HADOOP_PREFIX/etc/hadoop/core-site.xml
 sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" $HADOOP_PREFIX/etc/hadoop/core-site.xml
 sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" $HADOOP_PREFIX/etc/hadoop/core-site.xml
@@ -31,9 +30,10 @@ sed -i "s/EXAMPLE.COM/${KRB_REALM}/g" $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
 sed -i "s/HOSTNAME/${FQDN}/g" $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
 sed -i "s#/etc/security/keytabs#${KEYTAB_DIR}#g" $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
 
+sed -i "s#/usr/local/hadoop/bin/container-executor#${NM_CONTAINER_EXECUTOR_PATH}#g" $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
+
 # create namenode kerberos principal and keytab
-touch /var/log/kerberos/kadmind.log
-kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -pw password root@${KRB_REALM}"
+kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -pw ${KERBEROS_ROOT_USER_PASSWORD} root@${KRB_REALM}"
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -randkey nn/$(hostname -f)@${KRB_REALM}"
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -randkey dn/$(hostname -f)@${KRB_REALM}"
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -randkey HTTP/$(hostname -f)@${KRB_REALM}"
@@ -49,6 +49,15 @@ kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k jhs.service
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k yarn.service.keytab yarn/$(hostname -f)"
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k rm.service.keytab rm/$(hostname -f)"
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k nm.service.keytab nm/$(hostname -f)"
+
+
+
+#rm /usr/local/hadoop-2.7.1/share/hadoop/common/lib/guava-11.0.2.jar
+#rm /usr/local/hadoop-2.7.1/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/guava-11.0.2.jar
+#rm /usr/local/hadoop-2.7.1/share/hadoop/tools/lib/guava-11.0.2.jar
+#rm /usr/local/hadoop-2.7.1/share/hadoop/hdfs/lib/guava-11.0.2.jar
+#rm /usr/local/hadoop-2.7.1/share/hadoop/yarn/lib/guava-11.0.2.jar
+#rm /usr/local/hadoop-2.7.1/share/hadoop/kms/tomcat/webapps/kms/WEB-INF/lib/guava-11.0.2.jar
 
 mkdir -p ${KEYTAB_DIR}
 mv nn.service.keytab ${KEYTAB_DIR}
@@ -66,18 +75,11 @@ chmod 400 ${KEYTAB_DIR}/yarn.service.keytab
 chmod 400 ${KEYTAB_DIR}/rm.service.keytab
 chmod 400 ${KEYTAB_DIR}/nm.service.keytab
 
-# create Java Keystore
-#keytool -genkey -keyalg RSA -alias c6401 -keystore $HADOOP_PREFIX/lib/keystore.jks -storepass bigdata -validity 360 -keysize 2048 -keypass bigdata -dname CN=$(hostname -f)
-
 $HADOOP_PREFIX/bin/hdfs namenode -format
-service sshd start
+#service sshd start
+#systemctl start sshd
 $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 $HADOOP_PREFIX/sbin/start-dfs.sh
-$HADOOP_PREFIX/bin/hdfs dfs -mkdir -p /user/root
-$HADOOP_PREFIX/bin/hdfs dfs -put $HADOOP_PREFIX/etc/hadoop/ input
-
-#service sshd start
-#$HADOOP_PREFIX/sbin/start-dfs.sh
 $HADOOP_PREFIX/sbin/start-yarn.sh
 $HADOOP_PREFIX/sbin/mr-jobhistory-daemon.sh start historyserver
 
