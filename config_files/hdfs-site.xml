@@ -41,13 +41,13 @@
 
     <property>
          <name>dfs.namenode.kerberos.principal</name>
-         <value>nn/_HOST@ANDY.COM</value>
+         <value>nn/_HOST@EXAMPLE.COM</value>
          <description> Kerberos principal name for the NameNode </description>
     </property>
 
     <property>
          <name>dfs.secondary.namenode.kerberos.principal</name>
-         <value>nn/_HOST@ANDY.COM</value>
+         <value>nn/_HOST@EXAMPLE.COM</value>
          <description>Kerberos principal name for the secondary NameNode.
          </description>
     </property>
@@ -67,7 +67,7 @@
 
     <property>
          <name>dfs.web.authentication.kerberos.principal</name>
-         <value>HTTP/_HOST@ANDY.COM</value>
+         <value>HTTP/_HOST@EXAMPLE.COM</value>
          <description> The HTTP Kerberos principal used by Hadoop-Auth in the HTTP endpoint.
          The HTTP Kerberos principal MUST start with 'HTTP/' per Kerberos HTTP
          SPNEGO specification.
@@ -84,7 +84,7 @@
 
     <property>
          <name>dfs.datanode.kerberos.principal</name>
-         <value>dn/_HOST@ANDY.COM</value>
+         <value>dn/_HOST@EXAMPLE.COM</value>
          <description>
          The Kerberos principal that the DataNode runs as. "_HOST" is replaced by the real
          host name.

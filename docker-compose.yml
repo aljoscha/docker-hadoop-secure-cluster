@@ -17,7 +17,7 @@ services:
     image: sequenceiq/kerberos
     hostname: kdc.kerberos.com
     environment:
-      REALM: ANDY.COM
+      REALM: EXAMPLE.COM
       DOMAIN_REALM: kdc.kerberos.com
     volumes:
       - "./config_files/krb5.conf:/etc/krb5.conf"
@@ -37,7 +37,7 @@ services:
     extra_hosts:
       - "kdc.kerberos.com kdc:172.21.0.2"
     environment:
-      KRB_REALM: ANDY.COM
+      KRB_REALM: EXAMPLE.COM
       DOMAIN_REALM: kdc.kerberos.com
       FQDN: hadoop.docker.com
     volumes:
