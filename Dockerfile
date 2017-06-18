@@ -2,8 +2,7 @@
 #
 # docker build -t sequenceiq/hadoop .
 
-#FROM sequenceiq/pam:centos-6.5
-FROM centos
+FROM sequenceiq/pam:centos-6.5
 MAINTAINER Knappek
 
 USER root
@@ -77,13 +76,10 @@ ENV KERBEROS_ROOT_USER_PASSWORD password
 ENV KEYTAB_DIR /etc/security/keytabs
 ENV FQDN hadoop.com
 
-RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME=/usr/java/default\nexport HADOOP_PREFIX=/usr/local/hadoop\nexport HADOOP_HOME=/usr/local/hadoop\n:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-RUN sed -i '/.*export HADOOP_SECURE_DN_USER/ s:.*:export HADOOP_SECURE_DN_USER=:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh 
-
 RUN mkdir $HADOOP_PREFIX/input
 RUN cp $HADOOP_PREFIX/etc/hadoop/*.xml $HADOOP_PREFIX/input
 
+ADD config_files/hadoop-env.sh $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 ADD config_files/core-site.xml $HADOOP_PREFIX/etc/hadoop/core-site.xml
 ADD config_files/hdfs-site.xml $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
 ADD config_files/mapred-site.xml $HADOOP_PREFIX/etc/hadoop/mapred-site.xml

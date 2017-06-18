@@ -76,7 +76,7 @@ chmod 400 ${KEYTAB_DIR}/rm.service.keytab
 chmod 400 ${KEYTAB_DIR}/nm.service.keytab
 
 $HADOOP_PREFIX/bin/hdfs namenode -format
-#service sshd start
+service sshd start
 #systemctl start sshd
 $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 $HADOOP_PREFIX/sbin/start-dfs.sh
