@@ -51,7 +51,6 @@ kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k rm.service.
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k nm.service.keytab nm/$(hostname -f)"
 
 
-
 #rm /usr/local/hadoop-2.7.1/share/hadoop/common/lib/guava-11.0.2.jar
 #rm /usr/local/hadoop-2.7.1/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/guava-11.0.2.jar
 #rm /usr/local/hadoop-2.7.1/share/hadoop/tools/lib/guava-11.0.2.jar

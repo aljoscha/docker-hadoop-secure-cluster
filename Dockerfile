@@ -11,7 +11,8 @@ USER root
 RUN yum clean all; \
     rpm --rebuilddb; \
     yum install -y curl which tar sudo openssh-server openssh-clients rsync \ 
-    vim rsyslog unzip glibc-devel
+    vim rsyslog unzip glibc-devel \
+    glibc-headers gcc-c++ cmake git zlib-devel
 # update libselinux. see https://github.com/sequenceiq/hadoop-docker/issues/14
 RUN yum update -y libselinux
 
@@ -26,8 +27,8 @@ RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 # java
 # download/copy JDK. Comment one of these. The curl command can be retrieved
 # from https://lv.binarybabel.org/catalog/java/jdk8
-#RUN curl -LOH 'Cookie: oraclelicense=accept-securebackup-cookie' 'http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.rpm'
-COPY local_files/jdk-8u131-linux-x64.rpm /
+RUN curl -LOH 'Cookie: oraclelicense=accept-securebackup-cookie' 'http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.rpm'
+#COPY local_files/jdk-8u131-linux-x64.rpm /
 
 RUN rpm -i jdk-8u131-linux-x64.rpm
 RUN rm jdk-8u131-linux-x64.rpm
@@ -41,9 +42,9 @@ RUN cp /UnlimitedJCEPolicyJDK8/local_policy.jar /UnlimitedJCEPolicyJDK8/US_expor
 
 RUN mkdir -p /tmp/native
 # download/copy hadoop native support. Choose one of these options
-#RUN curl -L https://github.com/sequenceiq/docker-hadoop-build/releases/download/v2.7.1/hadoop-native-64-2.7.1.tgz | tar -xz -C /tmp/native
-COPY local_files/hadoop-native-64-2.7.1.tgz /tmp/native/hadoop-native-64-2.7.1.tgz
-RUN tar -xzvf /tmp/native/hadoop-native-64-2.7.1.tgz -C /tmp/native
+RUN curl -L https://github.com/sequenceiq/docker-hadoop-build/releases/download/v2.7.1/hadoop-native-64-2.7.1.tgz | tar -xz -C /tmp/native
+#COPY local_files/hadoop-native-64-2.7.1.tgz /tmp/native/hadoop-native-64-2.7.1.tgz
+#RUN tar -xzvf /tmp/native/hadoop-native-64-2.7.1.tgz -C /tmp/native
 
 # Kerberos client
 RUN yum install krb5-libs krb5-workstation krb5-auth-dialog -y
@@ -52,10 +53,14 @@ RUN touch /var/log/kerberos/kadmind.log
 
 # hadoop
 # download/copy hadoop. Choose one of these options
-#RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz | tar -xz -C /usr/local/
-COPY local_files/hadoop-2.7.1.tar.gz /usr/local/hadoop-2.7.1.tar.gz
-RUN tar -xzvf /usr/local/hadoop-2.7.1.tar.gz -C /usr/local
-RUN cd /usr/local && ln -s ./hadoop-2.7.1 hadoop
+RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz | tar -xz -C /usr/local/
+#COPY local_files/hadoop-2.7.1.tar.gz /usr/local/hadoop-2.7.1.tar.gz
+#RUN tar -xzvf /usr/local/hadoop-2.7.1.tar.gz -C /usr/local
+RUN cd /usr/local \
+    && ln -s ./hadoop-2.7.1 hadoop \
+    && chown root:root -R hadoop/
+
+
 
 ENV HADOOP_PREFIX /usr/local/hadoop
 ENV HADOOP_COMMON_HOME /usr/local/hadoop
@@ -84,19 +89,50 @@ ADD config_files/core-site.xml $HADOOP_PREFIX/etc/hadoop/core-site.xml
 ADD config_files/hdfs-site.xml $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
 ADD config_files/mapred-site.xml $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
 ADD config_files/yarn-site.xml $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
+ADD config_files/container-executor.cfg $HADOOP_PREFIX/etc/hadoop/container-executor.cfg
+RUN mkdir $HADOOP_PREFIX/nm-local-dirs \
+    && mkdir $HADOOP_PREFIX/nm-log-dirs 
 ADD config_files/ssl-server.xml $HADOOP_PREFIX/etc/hadoop/ssl-server.xml
 ADD config_files/ssl-client.xml $HADOOP_PREFIX/etc/hadoop/ssl-client.xml
 ADD config_files/keystore.jks $HADOOP_PREFIX/lib/keystore.jks
-#ADD guava-16.0.1.jar /usr/local/hadoop-2.7.1/share/hadoop/common/lib/guava-16.0.1.jar
-#ADD guava-16.0.1.jar /usr/local/hadoop-2.7.1/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/guava-16.0.1.jar
-#ADD guava-16.0.1.jar /usr/local/hadoop-2.7.1/share/hadoop/tools/lib/guava-16.0.1.jar
-#ADD guava-16.0.1.jar /usr/local/hadoop-2.7.1/share/hadoop/hdfs/lib/guava-16.0.1.jar
-#ADD guava-16.0.1.jar /usr/local/hadoop-2.7.1/share/hadoop/yarn/lib/guava-16.0.1.jar
-#ADD guava-16.0.1.jar /usr/local/hadoop-2.7.1/share/hadoop/kms/tomcat/webapps/kms/WEB-INF/lib/guava-16.0.1.jar
 
 # fixing the libhadoop.so like a boss
-RUN rm -rf /usr/local/hadoop/lib/native
-RUN mv /tmp/native /usr/local/hadoop/lib
+RUN rm -rf $HADOOP_PREFIX/lib/native
+RUN mv /tmp/native $HADOOP_PREFIX/lib
+
+# fetch hadoop source code to build some binaries natively
+# for this, protobuf is needed
+RUN curl -L https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz | tar -xz -C /tmp/
+#COPY local_files/protobuf-2.5.0.tar.gz /tmp/protobuf-2.5.0.tar.gz
+#RUN tar -xzf /tmp/protobuf-2.5.0.tar.gz -C /tmp/
+
+RUN cd /tmp/protobuf-2.5.0 \
+    && ./configure \
+    && make \
+    && make install
+ENV HADOOP_PROTOC_PATH /usr/local/bin/protoc
+
+RUN curl -L http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/maven/maven-3/3.5.0/binaries/apache-maven-3.5.0-bin.tar.gz | tar -xz -C /usr/local
+#COPY local_files/apache-maven-3.5.0-bin.tar.gz /tmp/apache-maven-3.5.0-bin.tar.gz
+#RUN tar -xzf /tmp/apache-maven-3.5.0-bin.tar.gz -C /usr/local
+
+RUN cd /usr/local && ln -s ./apache-maven-3.5.0/ maven
+ENV PATH $PATH:/usr/local/maven/bin
+
+RUN curl -L http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1-src.tar.gz | tar xzf -C /tmp/
+#COPY local_files/hadoop-2.7.1-src.tar.gz /tmp/hadoop-2.7.1-src.tar.gz
+#RUN tar -xzf /tmp/hadoop-2.7.1-src.tar.gz -C /tmp
+
+# build native hadoop-common libs to remove warnings because of 64 bit OS
+RUN cd /tmp/hadoop-2.7.1-src/hadoop-common-project/hadoop-common \
+    && mvn compile -Pnative \
+    && cp target/native/target/usr/local/lib/libhadoop.a $HADOOP_PREFIX/lib/native \
+    && cp target/native/target/usr/local/lib/libhadoop.so.1.0.0 $HADOOP_PREFIX/lib/native
+# build container-executor binary
+RUN cd /tmp/hadoop-2.7.1-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager \
+    && mvn compile -Pnative \
+    && cp target/native/target/usr/local/bin/container-executor $HADOOP_PREFIX/bin/ \
+    && chmod 6050 $HADOOP_PREFIX/bin/container-executor
 
 ADD config_files/ssh_config /root/.ssh/config
 RUN chmod 600 /root/.ssh/config
@@ -106,7 +142,6 @@ ENV BOOTSTRAP /etc/bootstrap.sh
 ADD bootstrap.sh $BOOTSTRAP
 RUN chown root:root $BOOTSTRAP
 RUN chmod 700 $BOOTSTRAP
-
 
 # workingaround docker.io build error
 RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh

@@ -1,6 +1,6 @@
 # Apache Hadoop 2.7.1 Docker image with Kerberos enabled
 
-This project is a fork from (sequenceiq hadoop-docker)[https://github.com/sequenceiq/hadoop-docker] 
+This project is a fork from [sequenceiq hadoop-docker](https://github.com/sequenceiq/hadoop-docker) 
 and extends it with Kerberos enabled. With docker-compose 2 containers get
 created, one with MIT KDC installed and one with a single node kerberized
 Hadoop cluster.
@@ -19,7 +19,7 @@ Known issues
 ------------
 
 ### Nodemanger does not start
-Nodemanager does not start as glibc 2.14 is not enabled in RHEL 6. There is an open ticket at (Hortonworks community)[https://community.hortonworks.com/questions/109015/can-not-start-nodemanager-in-kerberos-secure-mode.html]
+Nodemanager does not start as glibc 2.14 is not enabled in RHEL 6. There is an open ticket at [Hortonworks community](https://community.hortonworks.com/questions/109015/can-not-start-nodemanager-in-kerberos-secure-mode.html)
 
 ### JDK 8
 

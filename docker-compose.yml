@@ -24,10 +24,11 @@ services:
       - "/dev/urandom:/dev/random"
       - "/etc/localtime:/etc/localtime:ro"
 
-  hadoop:
+  hadoop-secure:
     networks:
       custom:
         ipv4_address: 172.21.0.3
+    build: .
     image: knappek/hadoop-secure
     depends_on: 
       - kdc
