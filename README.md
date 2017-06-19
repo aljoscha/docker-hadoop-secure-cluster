@@ -21,7 +21,7 @@ or build from Dockerfile
 docker build -t knappek/hadoop-secure .
 ```
 
-2. start kdc and hadoop container with docker-compose
+2. run kdc and hadoop container with docker-compose
 
 ```
 docker-compose up -d
