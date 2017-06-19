@@ -18,9 +18,6 @@ docker-compose up -d
 Known issues
 ------------
 
-### Nodemanger does not start
-Nodemanager does not start as glibc 2.14 is not enabled in RHEL 6. There is an open ticket at [Hortonworks community](https://community.hortonworks.com/questions/109015/can-not-start-nodemanager-in-kerberos-secure-mode.html)
-
 ### JDK 8
 
 Make sure you use download a JDK version that is still available. Old versions can be deprecated by Oracle and thus the download link won't be able anymore.
