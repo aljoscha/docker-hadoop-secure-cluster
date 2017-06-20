@@ -10,7 +10,7 @@ Run image
 ---------
 
 
-Clone this project and run
+Clone the [Github project](https://github.com/Knappek/docker-hadoop-secure) and run
 
 ```
 docker-compose up -d
@@ -18,6 +18,20 @@ docker-compose up -d
 
 Known issues
 ------------
+
+### Unable to obtain Kerberos password
+
+#### Error
+docker-compose up fails for the first time with the error
+
+```
+Login failure for nn/hadoop.docker.com@EXAMPLE.COM from keytab /etc/security/keytabs/nn.service.keytab: javax.security.auth.login.LoginException: Unable to obtain password from user
+```
+
+#### Solution
+
+Stop the containers with `docker-compose down` and start again with `docker-compose up -d`.
+
 
 ### JDK 8
 
