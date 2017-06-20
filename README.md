@@ -9,19 +9,8 @@ Hadoop cluster.
 Run image
 ---------
 
-1. Either download the `hadoop-secure` image from Dockerhub
 
-```
-docker pull knappek/hadoop-secure
-```
-
-or build from Dockerfile
-
-```
-docker build -t knappek/hadoop-secure .
-```
-
-2. run kdc and hadoop container with docker-compose
+Clone this project and run
 
 ```
 docker-compose up -d
