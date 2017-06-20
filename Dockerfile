@@ -119,7 +119,7 @@ RUN curl -L http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/mave
 RUN cd /usr/local && ln -s ./apache-maven-3.5.0/ maven
 ENV PATH $PATH:/usr/local/maven/bin
 
-RUN curl -L http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1-src.tar.gz | tar xzf -C /tmp/
+RUN curl -L http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1-src.tar.gz | tar -xz -C /tmp
 #COPY local_files/hadoop-2.7.1-src.tar.gz /tmp/hadoop-2.7.1-src.tar.gz
 #RUN tar -xzf /tmp/hadoop-2.7.1-src.tar.gz -C /tmp
 
