@@ -1,7 +1,5 @@
 #!/bin/bash
 
-: ${HADOOP_PREFIX:=/usr/local/hadoop}
-
 # HDFS client Debug mode on
 #$HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 #echo "export HADOOP_OPTS=\"$HADOOP_OPTS -Djavax.net.debug=ssl -Dsun.security.krb5.debug=true\"" >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
@@ -68,7 +66,6 @@ chmod 400 ${KEYTAB_DIR}/nm.service.keytab
 
 $HADOOP_PREFIX/bin/hdfs namenode -format
 service sshd start
-#systemctl start sshd
 $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 $HADOOP_PREFIX/sbin/start-dfs.sh
 $HADOOP_PREFIX/sbin/start-yarn.sh

@@ -1,6 +1,6 @@
-# Creates pseudo distributed hadoop 2.7.1
+# Creates pseudo distributed kerberized hadoop 2.7.1
 #
-# docker build -t sequenceiq/hadoop .
+# docker build -t knappek/hadoop-secure .
 
 FROM sequenceiq/pam:centos-6.5
 MAINTAINER Knappek
@@ -53,21 +53,21 @@ RUN touch /var/log/kerberos/kadmind.log
 
 # hadoop
 # download/copy hadoop. Choose one of these options
+ENV HADOOP_PREFIX /usr/local/hadoop
 RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz | tar -xz -C /usr/local/
-#COPY local_files/hadoop-2.7.1.tar.gz /usr/local/hadoop-2.7.1.tar.gz
-#RUN tar -xzvf /usr/local/hadoop-2.7.1.tar.gz -C /usr/local
+#COPY local_files/hadoop-2.7.1.tar.gz $HADOOP_PREFIX-2.7.1.tar.gz
+#RUN tar -xzvf $HADOOP_PREFIX-2.7.1.tar.gz -C /usr/local
 RUN cd /usr/local \
     && ln -s ./hadoop-2.7.1 hadoop \
     && chown root:root -R hadoop/
 
 
 
-ENV HADOOP_PREFIX /usr/local/hadoop
-ENV HADOOP_COMMON_HOME /usr/local/hadoop
-ENV HADOOP_HDFS_HOME /usr/local/hadoop
-ENV HADOOP_MAPRED_HOME /usr/local/hadoop
-ENV HADOOP_YARN_HOME /usr/local/hadoop
-ENV HADOOP_CONF_DIR /usr/local/hadoop/etc/hadoop
+ENV HADOOP_COMMON_HOME $HADOOP_PREFIX
+ENV HADOOP_HDFS_HOME $HADOOP_PREFIX
+ENV HADOOP_MAPRED_HOME $HADOOP_PREFIX
+ENV HADOOP_YARN_HOME $HADOOP_PREFIX
+ENV HADOOP_CONF_DIR $HADOOP_PREFIX/etc/hadoop
 ENV YARN_CONF_DIR $HADOOP_PREFIX/etc/hadoop
 ENV NM_CONTAINER_EXECUTOR_PATH $HADOOP_PREFIX/bin/container-executor
 ENV HADOOP_BIN_HOME $HADOOP_PREFIX/bin
@@ -144,9 +144,9 @@ RUN chown root:root $BOOTSTRAP
 RUN chmod 700 $BOOTSTRAP
 
 # workingaround docker.io build error
-RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
-RUN chmod +x /usr/local/hadoop/etc/hadoop/*-env.sh
-RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
+RUN ls -la $HADOOP_PREFIX/etc/hadoop/*-env.sh
+RUN chmod +x $HADOOP_PREFIX/etc/hadoop/*-env.sh
+RUN ls -la $HADOOP_PREFIX/etc/hadoop/*-env.sh
 
 # fix the 254 error code
 RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config

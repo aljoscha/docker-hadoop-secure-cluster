@@ -5,6 +5,13 @@ and extends it with Kerberos enabled. With docker-compose 2 containers get
 created, one with MIT KDC installed and one with a single node kerberized
 Hadoop cluster.
 
+Versions
+--------
+
+* JDK8 
+* Hadoop 2.7.1
+* Maven 3.5.0
+
 
 Run image
 ---------
