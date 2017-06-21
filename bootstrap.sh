@@ -50,14 +50,6 @@ kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k yarn.servic
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k rm.service.keytab rm/$(hostname -f)"
 kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "xst -k nm.service.keytab nm/$(hostname -f)"
 
-
-#rm /usr/local/hadoop-2.7.1/share/hadoop/common/lib/guava-11.0.2.jar
-#rm /usr/local/hadoop-2.7.1/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/guava-11.0.2.jar
-#rm /usr/local/hadoop-2.7.1/share/hadoop/tools/lib/guava-11.0.2.jar
-#rm /usr/local/hadoop-2.7.1/share/hadoop/hdfs/lib/guava-11.0.2.jar
-#rm /usr/local/hadoop-2.7.1/share/hadoop/yarn/lib/guava-11.0.2.jar
-#rm /usr/local/hadoop-2.7.1/share/hadoop/kms/tomcat/webapps/kms/WEB-INF/lib/guava-11.0.2.jar
-
 mkdir -p ${KEYTAB_DIR}
 mv nn.service.keytab ${KEYTAB_DIR}
 mv dn.service.keytab ${KEYTAB_DIR}
