@@ -23,6 +23,22 @@ Clone the [Github project](https://github.com/Knappek/docker-hadoop-secure) and 
 docker-compose up -d
 ```
 
+Usage
+-----
+
+To obtain a Kerberos ticket, execute
+
+```
+kinit
+```
+
+where you will get prompted to enter your password. Afterwards you can use `hdfs` CLI like
+
+```
+hdfs dfs -ls /
+```
+
+
 Known issues
 ------------
 
