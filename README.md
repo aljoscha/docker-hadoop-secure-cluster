@@ -26,6 +26,13 @@ docker-compose up -d
 Usage
 -----
 
+Get the container name with `docker ps` and login to the container with
+
+```
+docker exec -it <container-name> /bin/bash
+```
+
+
 To obtain a Kerberos ticket, execute
 
 ```
