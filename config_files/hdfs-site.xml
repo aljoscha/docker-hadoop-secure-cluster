@@ -175,6 +175,11 @@
          <value>authentication</value>
      </property>
      <property>
+         <name>dfs.encrypt.data.transfer</name>
+         <value>true</value>
+     </property>
+
+     <property>
          <name>dfs.datanode.data.dir.perm</name>
          <value>700</value>
      </property>

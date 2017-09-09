@@ -6,14 +6,14 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: 172.21.0.0/16
-        gateway: 172.21.0.1
+      - subnet: 172.22.0.0/16
+        gateway: 172.22.0.1
 
 services:
   kdc:
     networks:
       custom:
-        ipv4_address: 172.21.0.2
+        ipv4_address: 172.22.0.2
     image: sequenceiq/kerberos
     hostname: kdc.kerberos.com
     environment:
@@ -27,7 +27,7 @@ services:
   hadoop-secure:
     networks:
       custom:
-        ipv4_address: 172.21.0.3
+        ipv4_address: 172.22.0.3
     image: knappek/hadoop-secure
     depends_on: 
       - kdc
@@ -35,7 +35,7 @@ services:
     domainname: docker.com
     tty: true
     extra_hosts:
-      - "kdc.kerberos.com kdc:172.21.0.2"
+      - "kdc.kerberos.com kdc:172.22.0.2"
     environment:
       KRB_REALM: EXAMPLE.COM
       DOMAIN_REALM: kdc.kerberos.com

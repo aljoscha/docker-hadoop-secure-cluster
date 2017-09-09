@@ -48,4 +48,8 @@
         <name>hadoop.ssl.client.conf</name>
         <value>ssl-client.xml</value>
     </property>
+    <property>
+        <name>hadoop.rpc.protection</name>
+        <value>privacy</value>
+    </property>
 </configuration>
