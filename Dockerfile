@@ -1,4 +1,4 @@
-# Creates pseudo distributed kerberized hadoop 2.7.1
+# Creates pseudo distributed kerberized hadoop 2.7.4
 #
 # docker build -t knappek/hadoop-secure .
 
@@ -40,12 +40,6 @@ RUN curl -LOH 'Cookie: oraclelicense=accept-securebackup-cookie' 'http://downloa
 RUN unzip jce_policy-8.zip
 RUN cp /UnlimitedJCEPolicyJDK8/local_policy.jar /UnlimitedJCEPolicyJDK8/US_export_policy.jar $JAVA_HOME/jre/lib/security
 
-RUN mkdir -p /tmp/native
-# download/copy hadoop native support. Choose one of these options
-RUN curl -L https://github.com/sequenceiq/docker-hadoop-build/releases/download/v2.7.1/hadoop-native-64-2.7.1.tgz | tar -xz -C /tmp/native
-#COPY local_files/hadoop-native-64-2.7.1.tgz /tmp/native/hadoop-native-64-2.7.1.tgz
-#RUN tar -xzvf /tmp/native/hadoop-native-64-2.7.1.tgz -C /tmp/native
-
 # Kerberos client
 RUN yum install krb5-libs krb5-workstation krb5-auth-dialog -y
 RUN mkdir -p /var/log/kerberos
@@ -54,11 +48,11 @@ RUN touch /var/log/kerberos/kadmind.log
 # hadoop
 # download/copy hadoop. Choose one of these options
 ENV HADOOP_PREFIX /usr/local/hadoop
-RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1.tar.gz | tar -xz -C /usr/local/
-#COPY local_files/hadoop-2.7.1.tar.gz $HADOOP_PREFIX-2.7.1.tar.gz
-#RUN tar -xzvf $HADOOP_PREFIX-2.7.1.tar.gz -C /usr/local
+RUN curl -s http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.4/hadoop-2.7.4.tar.gz | tar -xz -C /usr/local/
+#COPY local_files/hadoop-2.7.4.tar.gz $HADOOP_PREFIX-2.7.4.tar.gz
+#RUN tar -xzvf $HADOOP_PREFIX-2.7.4.tar.gz -C /usr/local
 RUN cd /usr/local \
-    && ln -s ./hadoop-2.7.1 hadoop \
+    && ln -s ./hadoop-2.7.4 hadoop \
     && chown root:root -R hadoop/
 
 
@@ -96,9 +90,6 @@ ADD config_files/ssl-server.xml $HADOOP_PREFIX/etc/hadoop/ssl-server.xml
 ADD config_files/ssl-client.xml $HADOOP_PREFIX/etc/hadoop/ssl-client.xml
 ADD config_files/keystore.jks $HADOOP_PREFIX/lib/keystore.jks
 
-# fixing the libhadoop.so like a boss
-RUN rm -rf $HADOOP_PREFIX/lib/native
-RUN mv /tmp/native $HADOOP_PREFIX/lib
 
 # fetch hadoop source code to build some binaries natively
 # for this, protobuf is needed
@@ -119,17 +110,18 @@ RUN curl -L http://ftp-stud.hs-esslingen.de/pub/Mirrors/ftp.apache.org/dist/mave
 RUN cd /usr/local && ln -s ./apache-maven-3.5.0/ maven
 ENV PATH $PATH:/usr/local/maven/bin
 
-RUN curl -L http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.1/hadoop-2.7.1-src.tar.gz | tar -xz -C /tmp
-#COPY local_files/hadoop-2.7.1-src.tar.gz /tmp/hadoop-2.7.1-src.tar.gz
-#RUN tar -xzf /tmp/hadoop-2.7.1-src.tar.gz -C /tmp
+RUN curl -L http://www.eu.apache.org/dist/hadoop/common/hadoop-2.7.4/hadoop-2.7.4-src.tar.gz | tar -xz -C /tmp
+#COPY local_files/hadoop-2.7.4-src.tar.gz /tmp/hadoop-2.7.4-src.tar.gz
+#RUN tar -xzf /tmp/hadoop-2.7.4-src.tar.gz -C /tmp
 
 # build native hadoop-common libs to remove warnings because of 64 bit OS
-RUN cd /tmp/hadoop-2.7.1-src/hadoop-common-project/hadoop-common \
+RUN rm -rf $HADOOP_PREFIX/lib/native
+RUN cd /tmp/hadoop-2.7.4-src/hadoop-common-project/hadoop-common \
     && mvn compile -Pnative \
     && cp target/native/target/usr/local/lib/libhadoop.a $HADOOP_PREFIX/lib/native \
     && cp target/native/target/usr/local/lib/libhadoop.so.1.0.0 $HADOOP_PREFIX/lib/native
 # build container-executor binary
-RUN cd /tmp/hadoop-2.7.1-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager \
+RUN cd /tmp/hadoop-2.7.4-src/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-nodemanager \
     && mvn compile -Pnative \
     && cp target/native/target/usr/local/bin/container-executor $HADOOP_PREFIX/bin/ \
     && chmod 6050 $HADOOP_PREFIX/bin/container-executor

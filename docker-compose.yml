@@ -28,7 +28,7 @@ services:
     networks:
       custom:
         ipv4_address: 172.22.0.3
-    image: knappek/hadoop-secure
+    image: knappek/hadoop-secure:2.7.4
     depends_on: 
       - kdc
     hostname: hadoop
