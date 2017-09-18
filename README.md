@@ -5,6 +5,8 @@ and extends it with Kerberos enabled. With docker-compose 2 containers get
 created, one with MIT KDC installed and one with a single node kerberized
 Hadoop cluster.
 
+The Docker image is also available on [Docker Hub](https://hub.docker.com/r/knappek/hadoop-secure/).
+
 Versions
 --------
 
