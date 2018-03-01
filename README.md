@@ -1,5 +1,8 @@
 # Apache Hadoop 2.7.1 Docker image with Kerberos enabled
 
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Docker Pulls](https://img.shields.io/docker/pulls/knappek/hadoop-secure.svg)](https://hub.docker.com/r/knappek/hadoop-secure)
+
 This project is a fork from [sequenceiq hadoop-docker](https://github.com/sequenceiq/hadoop-docker) 
 and extends it with Kerberos enabled. With docker-compose 2 containers get
 created, one with MIT KDC installed and one with a single node kerberized
