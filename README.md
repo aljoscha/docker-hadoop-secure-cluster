@@ -1,21 +1,18 @@
-# Apache Hadoop 2.7.1 Docker image with Kerberos enabled
+# Apache Hadoop Docker image with Kerberos enabled
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/knappek/hadoop-secure.svg)](https://hub.docker.com/r/knappek/hadoop-secure)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+This image is modified version of Knappek/docker-hadoop-secure
+ * Knappek/docker-hadoop-secure <https://github.com/Knappek/docker-hadoop-secure>
 
-This project is a fork from [sequenceiq hadoop-docker](https://github.com/sequenceiq/hadoop-docker) 
-and extends it with Kerberos enabled. With docker-compose 2 containers get
-created, one with MIT KDC installed and one with a single node kerberized
-Hadoop cluster.
+With bits and pieces added from Lewuathe/docker-hadoop-cluster to extend it to start a proper kerberized Hadoop cluster:
+ * Lewuathe/docker-hadoop-cluster <https://github.com/Lewuathe/docker-hadoop-cluster>
 
-The Docker image is also available on [Docker Hub](https://hub.docker.com/r/knappek/hadoop-secure/).
+And a lot of added stuff for making this an actual, properly configured, kerberized cluster with proper user/permissions structure.
 
 Versions
 --------
 
-* JDK8 
-* Hadoop 2.7.1
-* Maven 3.5.0
+* JDK8
+* Hadoop 2.8.3
 
 Default Environment Variables
 -----------------------------
@@ -26,19 +23,16 @@ Default Environment Variables
 | `DOMAIN_REALM` | `example.com` | The Kerberos Domain Realm, more information [here](https://web.mit.edu/kerberos/krb5-1.12/doc/admin/conf_files/krb5_conf.html#) |
 | `KERBEROS_ADMIN` | `admin/admin` | The KDC admin user |
 | `KERBEROS_ADMIN_PASSWORD` | `admin` | The KDC admin password |
-| `KERBEROS_ROOT_USER_PASSWORD` | `password` | The password of the Kerberos principal `root` which maps to the OS root user |
 
 You can simply define these variables in the `docker-compose.yml`.
-
 
 Run image
 ---------
 
-
-Clone the [Github project](https://github.com/Knappek/docker-hadoop-secure) and run
+Clone the [Github project](https://github.com/aljoscha/docker-hadoop-secure-cluster) and run
 
 ```
-docker-compose up -d
+docker-compose up
 ```
 
 Usage
@@ -54,10 +48,10 @@ docker exec -it <container-name> /bin/bash
 To obtain a Kerberos ticket, execute
 
 ```
-kinit
+kinit -kt /home/hadoop-user/hadoop-user.keytab hadoop-user
 ```
 
-where you will get prompted to enter your password. Afterwards you can use `hdfs` CLI like
+Afterwards you can use `hdfs` CLI like
 
 ```
 hdfs dfs -ls /
@@ -122,4 +116,3 @@ openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 ```
 keytool -import -keystore keystore.jks -alias CARoot -file server.crt`
 ```
-

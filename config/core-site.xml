@@ -1,7 +1,7 @@
 <configuration>
     <property>
         <name>fs.defaultFS</name>
-        <value>hdfs://HOSTNAME:9000</value>
+        <value>hdfs://master.docker-hadoop-cluster-network:9000</value>
     </property>
     <property>
          <name>hadoop.security.authentication</name>
@@ -17,12 +17,7 @@
     <property>
         <name>hadoop.security.auth_to_local</name>
         <value>
-        RULE:[2:$1@$0]([jt]t@.*EXAMPLE.COM)s/.*/root/
-        RULE:[2:$1@$0]([nd]n@.*EXAMPLE.COM)s/.*/root/
-        RULE:[2:$1@$0](hm@.*EXAMPLE.COM)s/.*/root/
-        RULE:[2:$1@$0](rs@.*EXAMPLE.COM)s/.*/root/
-        RULE:[2:$1@$0](rm@.*EXAMPLE.COM)s/.*/root/
-        RULE:[2:$1@$0](jhs@.*EXAMPLE.COM)s/.*/root/
+        RULE:[2:$1](.*)
         DEFAULT
         </value>
         <description>The mapping from kerberos principal names
@@ -53,3 +48,4 @@
         <value>privacy</value>
     </property>
 </configuration>
+

@@ -1,45 +1,70 @@
-version: '2'
+version: '3.5'
 
 networks:
-  custom:
+  docker-hadoop-cluster-network:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-      - subnet: 172.22.0.0/16
-        gateway: 172.22.0.1
+    name: docker-hadoop-cluster-network
 
 services:
   kdc:
-    networks:
-      custom:
-        ipv4_address: 172.22.0.2
-    image: sequenceiq/kerberos
+    container_name: "kdc"
     hostname: kdc.kerberos.com
+    image: sequenceiq/kerberos
+    networks:
+      - docker-hadoop-cluster-network
     environment:
       REALM: EXAMPLE.COM
       DOMAIN_REALM: kdc.kerberos.com
-    volumes:
-      - "./config_files/krb5.conf:/etc/krb5.conf"
-      - "/dev/urandom:/dev/random"
-      - "/etc/localtime:/etc/localtime:ro"
 
-  hadoop-secure:
-    networks:
-      custom:
-        ipv4_address: 172.22.0.3
-    image: knappek/hadoop-secure:2.7.4
-    depends_on: 
+  master:
+    image: ${DOCKER_HADOOP_IMAGE_NAME:-aljoscha/docker-hadoop-secure-cluster:latest}
+    command: master
+    depends_on:
       - kdc
-    hostname: hadoop
-    domainname: docker.com
-    tty: true
-    extra_hosts:
-      - "kdc.kerberos.com kdc:172.22.0.2"
+    ports:
+      - "50070:50070"
+      - "50470:50470"
+      - "8088:8088"
+      - "19888:19888"
+      - "8188:8188"
+    container_name: "master"
+    hostname: master.docker-hadoop-cluster-network
+    networks:
+      - docker-hadoop-cluster-network
     environment:
       KRB_REALM: EXAMPLE.COM
       DOMAIN_REALM: kdc.kerberos.com
-      FQDN: hadoop.docker.com
-    volumes:
-      - "./config_files/krb5.conf:/etc/krb5.conf"
-      - "/etc/localtime:/etc/localtime:ro"
+
+  slave1:
+    image: ${DOCKER_HADOOP_IMAGE_NAME:-aljoscha/docker-hadoop-secure-cluster:latest}
+    command: worker
+    depends_on:
+      - kdc
+      - master
+    container_name: "slave1"
+    hostname: slave1.docker-hadoop-cluster-network
+    ports:
+      - "9901:9864"
+      - "8041:8042"
+    networks:
+      - docker-hadoop-cluster-network
+    environment:
+      KRB_REALM: EXAMPLE.COM
+      DOMAIN_REALM: kdc.kerberos.com
+
+  slave2:
+    image: ${DOCKER_HADOOP_IMAGE_NAME:-aljoscha/docker-hadoop-secure-cluster:latest}
+    command: worker
+    depends_on:
+      - kdc
+      - master
+    container_name: "slave2"
+    hostname: slave2.docker-hadoop-cluster-network
+    ports:
+      - "9902:9864"
+      - "8042:8042"
+    networks:
+      - docker-hadoop-cluster-network
+    environment:
+      KRB_REALM: EXAMPLE.COM
+      DOMAIN_REALM: kdc.kerberos.com

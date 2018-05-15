@@ -5,31 +5,31 @@
     </property>
     <property>
         <name>mapreduce.jobhistory.keytab</name>
-        <value>/etc/security/keytabs/jhs.service.keytab</value>
-    </property> 
-     
+        <value>/etc/security/keytabs/mapred.keytab</value>
+    </property>
+
     <property>
          <name>mapreduce.jobhistory.principal</name>
-         <value>jhs/_HOST@EXAMPLE.COM</value>
-    </property> 
-     
+         <value>mapred/HOSTNAME@EXAMPLE.COM</value>
+    </property>
+
     <property>
          <name>mapreduce.jobhistory.webapp.address</name>
-         <value>HOSTNAME:19888</value>
-    </property> 
-     
+         <value>master:19888</value>
+    </property>
+
     <property>
          <name>mapreduce.jobhistory.webapp.https.address</name>
-         <value>HOSTNAME:19889</value>
-    </property> 
-     
+         <value>master:19889</value>
+    </property>
+
     <property>
          <name>mapreduce.jobhistory.webapp.spnego-keytab-file</name>
-         <value>/etc/security/keytabs/spnego.service.keytab</value>
-    </property> 
-     
+         <value>/etc/security/keytabs/mapred.keytab</value>
+    </property>
+
     <property>
          <name>mapreduce.jobhistory.webapp.spnego-principal</name>
-         <value>HTTP/_HOST@EXAMPLE.COM</value>
-    </property>  
+         <value>HTTP/HOSTNAME@EXAMPLE.COM</value>
+    </property>
 </configuration>
