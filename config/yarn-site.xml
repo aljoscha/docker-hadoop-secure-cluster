@@ -140,10 +140,10 @@
 
   <property>
     <name>yarn.nodemanager.local-dirs</name>
-    <value>/usr/local/hadoop/nm-local-dirs</value>
+    <value>file:///hadoop-data/nm-local-dirs</value>
   </property>
   <property>
     <name>yarn.nodemanager.log-dirs</name>
-    <value>/usr/local/hadoop/nm-log-dirs</value>
+    <value>file:///hadoop-data/nm-log-dirs</value>
   </property>
 </configuration>

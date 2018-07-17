@@ -50,24 +50,29 @@ RUN curl -LOH 'Cookie: oraclelicense=accept-securebackup-cookie' 'http://downloa
 RUN unzip jce_policy-8.zip
 RUN cp /UnlimitedJCEPolicyJDK8/local_policy.jar /UnlimitedJCEPolicyJDK8/US_export_policy.jar $JAVA_HOME/jre/lib/security
 
-# download native support
-RUN mkdir -p /tmp/native
-RUN curl -Ls http://dl.bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64-2.7.0.tar | tar -x -C /tmp/native
-
 ENV HADOOP_VERSION=2.8.3
-ADD hadoop-${HADOOP_VERSION}.tar.gz /usr/local/
+
+# ENV HADOOP_URL https://www.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz
+ENV HADOOP_URL http://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz
+RUN set -x \
+    && curl -fSL "$HADOOP_URL" -o /tmp/hadoop.tar.gz \
+    && tar -xf /tmp/hadoop.tar.gz -C /usr/local/ \
+    && rm /tmp/hadoop.tar.gz*
+
 WORKDIR /usr/local
 RUN ln -s /usr/local/hadoop-${HADOOP_VERSION} /usr/local/hadoop
 RUN chown root:root -R /usr/local/hadoop-${HADOOP_VERSION}/
 RUN chown root:root -R /usr/local/hadoop/
 RUN chown root:yarn /usr/local/hadoop/bin/container-executor
 RUN chmod 6050 /usr/local/hadoop/bin/container-executor
-RUN mkdir -p /usr/local/hadoop/nm-local-dirs
-RUN mkdir -p /usr/local/hadoop/nm-log-dirs
-RUN chown yarn:yarn /usr/local/hadoop/nm-local-dirs
-RUN chown yarn:yarn /usr/local/hadoop/nm-log-dirs
-RUN chmod 755 /usr/local/hadoop/nm-local-dirs
-RUN chmod 755 /usr/local/hadoop/nm-log-dirs
+RUN mkdir -p /hadoop-data/nm-local-dirs
+RUN mkdir -p /hadoop-data/nm-log-dirs
+RUN chown yarn:yarn /hadoop-data
+RUN chown yarn:yarn /hadoop-data/nm-local-dirs
+RUN chown yarn:yarn /hadoop-data/nm-log-dirs
+RUN chmod 755 /hadoop-data
+RUN chmod 755 /hadoop-data/nm-local-dirs
+RUN chmod 755 /hadoop-data/nm-log-dirs
 
 
 ENV HADOOP_HOME /usr/local/hadoop
@@ -94,15 +99,13 @@ ADD config/hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 ADD config/mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
 ADD config/yarn-site.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml
 ADD config/container-executor.cfg $HADOOP_HOME/etc/hadoop/container-executor.cfg
+RUN chmod 400 $HADOOP_HOME/etc/hadoop/container-executor.cfg
+RUN chown root:yarn $HADOOP_HOME/etc/hadoop/container-executor.cfg
 # ADD config/log4j.properties $HADOOP_HOME/etc/hadoop/log4j.properties
 ADD config/krb5.conf /etc/krb5.conf
 ADD config/ssl-server.xml $HADOOP_HOME/etc/hadoop/ssl-server.xml
 ADD config/ssl-client.xml $HADOOP_HOME/etc/hadoop/ssl-client.xml
 ADD config/keystore.jks $HADOOP_HOME/lib/keystore.jks
-
-# fixing the libhadoop.so like a boss
-RUN rm -rf /usr/local/hadoop/lib/native
-RUN mv /tmp/native /usr/local/hadoop/lib
 
 ADD config/ssh_config /root/.ssh/config
 RUN chmod 600 /root/.ssh/config
