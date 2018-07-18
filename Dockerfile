@@ -50,7 +50,7 @@ RUN curl -LOH 'Cookie: oraclelicense=accept-securebackup-cookie' 'http://downloa
 RUN unzip jce_policy-8.zip
 RUN cp /UnlimitedJCEPolicyJDK8/local_policy.jar /UnlimitedJCEPolicyJDK8/US_export_policy.jar $JAVA_HOME/jre/lib/security
 
-ENV HADOOP_VERSION=2.8.3
+ENV HADOOP_VERSION=2.8.4
 
 # ENV HADOOP_URL https://www.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz
 ENV HADOOP_URL http://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz
