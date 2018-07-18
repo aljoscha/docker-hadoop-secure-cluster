@@ -59,12 +59,12 @@ if [ "$1" == "--help" -o "$1" == "-h" ]; then
     echo "Usage: $(basename $0) (master|worker)"
     exit 0
 elif [ "$1" == "master" ]; then
-    yes| $HADOOP_PREFIX/bin/hdfs namenode -format
+    yes| sudo -E -u hdfs $HADOOP_PREFIX/bin/hdfs namenode -format
 
-    nohup $HADOOP_PREFIX/bin/hdfs namenode 2>> /var/log/hadoop/namenode.err >> /var/log/hadoop/namenode.out &
-    nohup $HADOOP_PREFIX/bin/yarn resourcemanager 2>> /var/log/hadoop/resourcemanager.err >> /var/log/hadoop/resourcemanager.out &
-    nohup $HADOOP_PREFIX/bin/yarn timelineserver 2>> /var/log/hadoop/timelineserver.err >> /var/log/hadoop/timelineserver.out &
-    nohup $HADOOP_PREFIX/bin/mapred historyserver 2>> /var/log/hadoop/historyserver.err >> /var/log/hadoop/historyserver.out &
+    nohup sudo -E -u hdfs $HADOOP_PREFIX/bin/hdfs namenode 2>> /var/log/hadoop/namenode.err >> /var/log/hadoop/namenode.out &
+    nohup sudo -E -u yarn $HADOOP_PREFIX/bin/yarn resourcemanager 2>> /var/log/hadoop/resourcemanager.err >> /var/log/hadoop/resourcemanager.out &
+    nohup sudo -E -u yarn $HADOOP_PREFIX/bin/yarn timelineserver 2>> /var/log/hadoop/timelineserver.err >> /var/log/hadoop/timelineserver.out &
+    nohup sudo -E -u mapred $HADOOP_PREFIX/bin/mapred historyserver 2>> /var/log/hadoop/historyserver.err >> /var/log/hadoop/historyserver.out &
 
 
     kadmin -p ${KERBEROS_ADMIN} -w ${KERBEROS_ADMIN_PASSWORD} -q "addprinc -randkey root@${KRB_REALM}"
@@ -95,8 +95,8 @@ elif [ "$1" == "master" ]; then
 
     while true; do sleep 1000; done
 elif [ "$1" == "worker" ]; then
-    nohup $HADOOP_PREFIX/bin/hdfs datanode 2>> /var/log/hadoop/datanode.err >> /var/log/hadoop/datanode.out &
-    nohup $HADOOP_PREFIX/bin/yarn nodemanager 2>> /var/log/hadoop/nodemanager.err >> /var/log/hadoop/nodemanager.out &
+    nohup sudo -E -u hdfs $HADOOP_PREFIX/bin/hdfs datanode 2>> /var/log/hadoop/datanode.err >> /var/log/hadoop/datanode.out &
+    nohup sudo -E -u yarn $HADOOP_PREFIX/bin/yarn nodemanager 2>> /var/log/hadoop/nodemanager.err >> /var/log/hadoop/nodemanager.out &
     while true; do sleep 1000; done
 elif [ $1 == "bash" ]; then
     /bin/bash
